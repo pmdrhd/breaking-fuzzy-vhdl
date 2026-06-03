@@ -19,45 +19,45 @@ end fuzzifier;
 
 architecture Behavioral of fuzzifier is
 begin
-    -- Perhitungan Membership Function untuk Distance
+    -- Proses Fuzzifikasi untuk Jarak (Distance)
     process(distance)
     begin
-        if distance < 85 then
-            dist_vclose <= 255 - (distance * 3);
-            dist_close  <= distance * 3;
+        if distance < to_unsigned(85, 8) then
+            dist_vclose <= to_unsigned(255, 8) - resize(distance * to_unsigned(3, 8), 8);
+            dist_close  <= resize(distance * to_unsigned(3, 8), 8);
             dist_far    <= to_unsigned(0, 8);
             dist_vfar   <= to_unsigned(0, 8);
-        elsif distance < 170 then
+        elsif distance < to_unsigned(170, 8) then
             dist_vclose <= to_unsigned(0, 8);
-            dist_close  <= 255 - ((distance - 85) * 3);
-            dist_far    <= (distance - 85) * 3;
+            dist_close  <= to_unsigned(255, 8) - resize((distance - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
+            dist_far    <= resize((distance - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
             dist_vfar   <= to_unsigned(0, 8);
         else
             dist_vclose <= to_unsigned(0, 8);
             dist_close  <= to_unsigned(0, 8);
-            dist_far    <= 255 - ((distance - 170) * 3);
-            dist_vfar   <= (distance - 170) * 3;
+            dist_far    <= to_unsigned(255, 8) - resize((distance - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
+            dist_vfar   <= resize((distance - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
         end if;
     end process;
 
-    -- Perhitungan Membership Function untuk Speed
+    -- Proses Fuzzifikasi untuk Kecepatan (Speed)
     process(speed)
     begin
-        if speed < 85 then
-            speed_vslow <= 255 - (speed * 3);
-            speed_slow  <= speed * 3;
+        if speed < to_unsigned(85, 8) then
+            speed_vslow <= to_unsigned(255, 8) - resize(speed * to_unsigned(3, 8), 8);
+            speed_slow  <= resize(speed * to_unsigned(3, 8), 8);
             speed_fast  <= to_unsigned(0, 8);
             speed_vfast <= to_unsigned(0, 8);
-        elsif speed < 170 then
+        elsif speed < to_unsigned(170, 8) then
             speed_vslow <= to_unsigned(0, 8);
-            speed_slow  <= 255 - ((speed - 85) * 3);
-            speed_fast  <= (speed - 85) * 3;
+            speed_slow  <= to_unsigned(255, 8) - resize((speed - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
+            speed_fast  <= resize((speed - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
             speed_vfast <= to_unsigned(0, 8);
         else
             speed_vslow <= to_unsigned(0, 8);
             speed_slow  <= to_unsigned(0, 8);
-            speed_fast  <= 255 - ((speed - 170) * 3);
-            speed_vfast <= (speed - 170) * 3;
+            speed_fast  <= to_unsigned(255, 8) - resize((speed - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
+            speed_vfast <= resize((speed - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
         end if;
     end process;
 end Behavioral;

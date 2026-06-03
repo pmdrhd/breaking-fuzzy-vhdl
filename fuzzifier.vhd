@@ -4,60 +4,60 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity fuzzifier is
     Port (
-        distance : in unsigned(7 downto 0);
-        speed    : in unsigned(7 downto 0);
-        mu_d_vc  : out unsigned(7 downto 0);
-        mu_d_c   : out unsigned(7 downto 0);
-        mu_d_f   : out unsigned(7 downto 0);
-        mu_d_vf  : out unsigned(7 downto 0);
-        mu_s_vs  : out unsigned(7 downto 0);
-        mu_s_s   : out unsigned(7 downto 0);
-        mu_s_f   : out unsigned(7 downto 0);
-        mu_s_vf  : out unsigned(7 downto 0)
+        distance    : in unsigned(7 downto 0);
+        speed       : in unsigned(7 downto 0);
+        dist_vclose : out unsigned(7 downto 0);
+        dist_close  : out unsigned(7 downto 0);
+        dist_far    : out unsigned(7 downto 0);
+        dist_vfar   : out unsigned(7 downto 0);
+        speed_vslow : out unsigned(7 downto 0);
+        speed_slow  : out unsigned(7 downto 0);
+        speed_fast  : out unsigned(7 downto 0);
+        speed_vfast : out unsigned(7 downto 0)
     );
 end fuzzifier;
 
 architecture Behavioral of fuzzifier is
 begin
-    -- Proses Fuzzifikasi untuk Jarak (Distance)
+    -- Perhitungan Membership Function untuk Distance
     process(distance)
     begin
-        if distance < to_unsigned(85, 8) then
-            mu_d_vc <= to_unsigned(255, 8) - resize(distance * to_unsigned(3, 8), 8);
-            mu_d_c  <= resize(distance * to_unsigned(3, 8), 8);
-            mu_d_f  <= to_unsigned(0, 8);
-            mu_d_vf <= to_unsigned(0, 8);
-        elsif distance < to_unsigned(170, 8) then
-            mu_d_vc <= to_unsigned(0, 8);
-            mu_d_c  <= to_unsigned(255, 8) - resize((distance - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
-            mu_d_f  <= resize((distance - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
-            mu_d_vf <= to_unsigned(0, 8);
+        if distance < 85 then
+            dist_vclose <= 255 - (distance * 3);
+            dist_close  <= distance * 3;
+            dist_far    <= to_unsigned(0, 8);
+            dist_vfar   <= to_unsigned(0, 8);
+        elsif distance < 170 then
+            dist_vclose <= to_unsigned(0, 8);
+            dist_close  <= 255 - ((distance - 85) * 3);
+            dist_far    <= (distance - 85) * 3;
+            dist_vfar   <= to_unsigned(0, 8);
         else
-            mu_d_vc <= to_unsigned(0, 8);
-            mu_d_c  <= to_unsigned(0, 8);
-            mu_d_f  <= to_unsigned(255, 8) - resize((distance - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
-            mu_d_vf <= resize((distance - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
+            dist_vclose <= to_unsigned(0, 8);
+            dist_close  <= to_unsigned(0, 8);
+            dist_far    <= 255 - ((distance - 170) * 3);
+            dist_vfar   <= (distance - 170) * 3;
         end if;
     end process;
 
-    -- Proses Fuzzifikasi untuk Kecepatan (Speed)
+    -- Perhitungan Membership Function untuk Speed
     process(speed)
     begin
-        if speed < to_unsigned(85, 8) then
-            mu_s_vs <= to_unsigned(255, 8) - resize(speed * to_unsigned(3, 8), 8);
-            mu_s_s  <= resize(speed * to_unsigned(3, 8), 8);
-            mu_s_f  <= to_unsigned(0, 8);
-            mu_s_vf <= to_unsigned(0, 8);
-        elsif speed < to_unsigned(170, 8) then
-            mu_s_vs <= to_unsigned(0, 8);
-            mu_s_s  <= to_unsigned(255, 8) - resize((speed - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
-            mu_s_f  <= resize((speed - to_unsigned(85, 8)) * to_unsigned(3, 8), 8);
-            mu_s_vf <= to_unsigned(0, 8);
+        if speed < 85 then
+            speed_vslow <= 255 - (speed * 3);
+            speed_slow  <= speed * 3;
+            speed_fast  <= to_unsigned(0, 8);
+            speed_vfast <= to_unsigned(0, 8);
+        elsif speed < 170 then
+            speed_vslow <= to_unsigned(0, 8);
+            speed_slow  <= 255 - ((speed - 85) * 3);
+            speed_fast  <= (speed - 85) * 3;
+            speed_vfast <= to_unsigned(0, 8);
         else
-            mu_s_vs <= to_unsigned(0, 8);
-            mu_s_s  <= to_unsigned(0, 8);
-            mu_s_f  <= to_unsigned(255, 8) - resize((speed - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
-            mu_s_vf <= resize((speed - to_unsigned(170, 8)) * to_unsigned(3, 8), 8);
+            speed_vslow <= to_unsigned(0, 8);
+            speed_slow  <= to_unsigned(0, 8);
+            speed_fast  <= 255 - ((speed - 170) * 3);
+            speed_vfast <= (speed - 170) * 3;
         end if;
     end process;
 end Behavioral;

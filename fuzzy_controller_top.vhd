@@ -11,71 +11,99 @@ entity fuzzy_controller_top is
 end fuzzy_controller_top;
 
 architecture Structural of fuzzy_controller_top is
+    -- Deklarasi Komponen
     component fuzzifier
         Port (
-            distance : in unsigned(7 downto 0);
-            speed    : in unsigned(7 downto 0);
-            mu_d_vc  : out unsigned(7 downto 0);
-            mu_d_c   : out unsigned(7 downto 0);
-            mu_d_f   : out unsigned(7 downto 0);
-            mu_d_vf  : out unsigned(7 downto 0);
-            mu_s_vs  : out unsigned(7 downto 0);
-            mu_s_s   : out unsigned(7 downto 0);
-            mu_s_f   : out unsigned(7 downto 0);
-            mu_s_vf  : out unsigned(7 downto 0)
+            distance    : in unsigned(7 downto 0);
+            speed       : in unsigned(7 downto 0);
+            dist_vclose : out unsigned(7 downto 0);
+            dist_close  : out unsigned(7 downto 0);
+            dist_far    : out unsigned(7 downto 0);
+            dist_vfar   : out unsigned(7 downto 0);
+            speed_vslow : out unsigned(7 downto 0);
+            speed_slow  : out unsigned(7 downto 0);
+            speed_fast  : out unsigned(7 downto 0);
+            speed_vfast : out unsigned(7 downto 0)
         );
     end component;
 
     component inference_engine
         Port (
-            mu_d_vc : in unsigned(7 downto 0);
-            mu_d_c  : in unsigned(7 downto 0);
-            mu_d_f  : in unsigned(7 downto 0);
-            mu_d_vf : in unsigned(7 downto 0);
-            mu_s_vs : in unsigned(7 downto 0);
-            mu_s_s  : in unsigned(7 downto 0);
-            mu_s_f  : in unsigned(7 downto 0);
-            mu_s_vf : in unsigned(7 downto 0);
-            w_vl    : out unsigned(7 downto 0);
-            w_l     : out unsigned(7 downto 0);
-            w_h     : out unsigned(7 downto 0);
-            w_vh    : out unsigned(7 downto 0)
+            dist_vclose : in unsigned(7 downto 0);
+            dist_close  : in unsigned(7 downto 0);
+            dist_far    : in unsigned(7 downto 0);
+            dist_vfar   : in unsigned(7 downto 0);
+            speed_vslow : in unsigned(7 downto 0);
+            speed_slow  : in unsigned(7 downto 0);
+            speed_fast  : in unsigned(7 downto 0);
+            speed_vfast : in unsigned(7 downto 0);
+            brake_vlow_wt  : out unsigned(7 downto 0);
+            brake_low_wt   : out unsigned(7 downto 0);
+            brake_high_wt  : out unsigned(7 downto 0);
+            brake_vhigh_wt : out unsigned(7 downto 0)
         );
     end component;
 
     component defuzzifier
         Port (
-            w_vl  : in unsigned(7 downto 0);
-            w_l   : in unsigned(7 downto 0);
-            w_h   : in unsigned(7 downto 0);
-            w_vh  : in unsigned(7 downto 0);
-            brake : out unsigned(7 downto 0)
+            brake_vlow_wt  : in unsigned(7 downto 0);
+            brake_low_wt   : in unsigned(7 downto 0);
+            brake_high_wt  : in unsigned(7 downto 0);
+            brake_vhigh_wt : in unsigned(7 downto 0);
+            brake_out      : out unsigned(7 downto 0)
         );
     end component;
 
-    signal dist_u, speed_u, brake_u : unsigned(7 downto 0);
-    signal md_vc, md_c, md_f, md_vf  : unsigned(7 downto 0);
-    signal ms_vs, ms_s, ms_f, ms_vf  : unsigned(7 downto 0);
-    signal wl, wl_l, wh, wvh         : unsigned(7 downto 0);
+    -- Sinyal Penghubung Internal (Wires)
+    signal dist_unsigned, speed_unsigned, brake_unsigned : unsigned(7 downto 0);
+    
+    signal sig_dist_vclose, sig_dist_close, sig_dist_far, sig_dist_vfar : unsigned(7 downto 0);
+    signal sig_speed_vslow, sig_speed_slow, sig_speed_fast, sig_speed_vfast : unsigned(7 downto 0);
+    
+    signal sig_brake_vlow_wt, sig_brake_low_wt, sig_brake_high_wt, sig_brake_vhigh_wt : unsigned(7 downto 0);
+
 begin
-    dist_u <= unsigned(distance_in);
-    speed_u <= unsigned(speed_in);
-    brake_out <= std_logic_vector(brake_u);
+    -- Konversi port input (STD_LOGIC_VECTOR ke UNSIGNED)
+    dist_unsigned <= unsigned(distance_in);
+    speed_unsigned <= unsigned(speed_in);
+    brake_out <= std_logic_vector(brake_unsigned);
 
-    u1: fuzzifier port map (
-        distance => dist_u, speed => speed_u,
-        mu_d_vc => md_vc, mu_d_c => md_c, mu_d_f => md_f, mu_d_vf => md_vf,
-        mu_s_vs => ms_vs, mu_s_s => ms_s, mu_s_f => ms_f, mu_s_vf => ms_vf
+    -- Instansiasi Blok Fuzzifier
+    U1_Fuzzifier: fuzzifier port map (
+        distance    => dist_unsigned, 
+        speed       => speed_unsigned,
+        dist_vclose => sig_dist_vclose, 
+        dist_close  => sig_dist_close, 
+        dist_far    => sig_dist_far, 
+        dist_vfar   => sig_dist_vfar,
+        speed_vslow => sig_speed_vslow, 
+        speed_slow  => sig_speed_slow, 
+        speed_fast  => sig_speed_fast, 
+        speed_vfast => sig_speed_vfast
     );
 
-    u2: inference_engine port map (
-        mu_d_vc => md_vc, mu_d_c => md_c, mu_d_f => md_f, mu_d_vf => md_vf,
-        mu_s_vs => ms_vs, mu_s_s => ms_s, mu_s_f => ms_f, mu_s_vf => ms_vf,
-        w_vl => wl, w_l => wl_l, w_h => wh, w_vh => wvh
+    -- Instansiasi Blok Inference Engine
+    U2_Inference: inference_engine port map (
+        dist_vclose => sig_dist_vclose, 
+        dist_close  => sig_dist_close, 
+        dist_far    => sig_dist_far, 
+        dist_vfar   => sig_dist_vfar,
+        speed_vslow => sig_speed_vslow, 
+        speed_slow  => sig_speed_slow, 
+        speed_fast  => sig_speed_fast, 
+        speed_vfast => sig_speed_vfast,
+        brake_vlow_wt  => sig_brake_vlow_wt, 
+        brake_low_wt   => sig_brake_low_wt, 
+        brake_high_wt  => sig_brake_high_wt, 
+        brake_vhigh_wt => sig_brake_vhigh_wt
     );
 
-    u3: defuzzifier port map (
-        w_vl => wl, w_l => wl_l, w_h => wh, w_vh => wvh,
-        brake => brake_u
+    -- Instansiasi Blok Defuzzifier
+    U3_Defuzzifier: defuzzifier port map (
+        brake_vlow_wt  => sig_brake_vlow_wt, 
+        brake_low_wt   => sig_brake_low_wt, 
+        brake_high_wt  => sig_brake_high_wt, 
+        brake_vhigh_wt => sig_brake_vhigh_wt,
+        brake_out      => brake_unsigned
     );
 end Structural;
